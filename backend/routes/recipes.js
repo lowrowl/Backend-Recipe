@@ -24,10 +24,13 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Crear nueva receta y subir imagen a Cloudinary
+// Utilidad para normalizar campos (si solo hay uno, multer lo deja como string)
+const normalize = (field) => Array.isArray(field) ? field : (field ? [field] : []);
+
 router.post('/', upload.single('image'), async (req, res) => {
   try {
-    const { name, description, ingredients, steps } = req.body;
+    const { name, description } = req.body;
+    let { ingredients, steps } = req.body;
 
     let imageUrl = null;
 
@@ -36,16 +39,18 @@ router.post('/', upload.single('image'), async (req, res) => {
         folder: 'recipes'
       });
       imageUrl = result.secure_url;
-
-      // Eliminar archivo temporal
       fs.unlinkSync(req.file.path);
     }
+
+    // Normaliza los campos para que siempre sean arrays de strings
+    ingredients = normalize(ingredients);
+    steps = normalize(steps);
 
     const newRecipe = new Recipe({
       name,
       description,
-      ingredients: JSON.parse(ingredients),
-      steps: JSON.parse(steps),
+      ingredients,
+      steps,
       image: imageUrl,
     });
 
