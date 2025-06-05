@@ -5,6 +5,7 @@ const multer = require('multer');
 const path = require('path');
 const cloudinary = require('cloudinary').v2;
 const fs = require('fs');
+const auth = require('../middleware/auth'); // Importa el middleware de autenticación
 
 // Configuración de Cloudinary
 cloudinary.config({
@@ -27,7 +28,8 @@ const upload = multer({ storage });
 // Utilidad para normalizar campos (si solo hay uno, multer lo deja como string)
 const normalize = (field) => Array.isArray(field) ? field : (field ? [field] : []);
 
-router.post('/', upload.single('image'), async (req, res) => {
+// Crear nueva receta y subir imagen a Cloudinary
+router.post('/', auth, upload.single('image'), async (req, res) => {
   try {
     const { name, description } = req.body;
     let { ingredients, steps } = req.body;
@@ -45,6 +47,8 @@ router.post('/', upload.single('image'), async (req, res) => {
     // Normaliza los campos para que siempre sean arrays de strings
     ingredients = normalize(ingredients);
     steps = normalize(steps);
+
+    const userId = req.user.id; // Obtén el id del usuario autenticado
 
     const newRecipe = new Recipe({
       name,
