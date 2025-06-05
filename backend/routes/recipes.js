@@ -44,8 +44,8 @@ router.post('/', upload.single('image'), async (req, res) => {
     const newRecipe = new Recipe({
       name,
       description,
-      ingredients: ingredients.split(','),
-      steps: steps.split(','),
+      ingredients: JSON.parse(ingredients),
+      steps: JSON.parse(steps),
       image: imageUrl,
     });
 
