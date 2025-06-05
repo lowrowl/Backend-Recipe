@@ -2,16 +2,36 @@ const express = require('express');
 const Group = require('../models/Group');
 const Recipe = require('../models/Recipe');
 const router = express.Router();
+const multer = require('../multer');
+const cloudinary = require('cloudinary').v2;
+const fs = require('fs');
+const auth = require('../middleware/auth'); // Solo si quieres proteger los endpoints
 
-// Crear grupo
-router.post('/', async (req, res) => {
-  const { name, recipes } = req.body;
-
+// Crear grupo (con imagen)
+router.post('/', auth, multer.single('image'), async (req, res) => {
   try {
-    const newGroup = new Group({ name, recipes });
+    const { name, recipes } = req.body;
+
+    let imageUrl = null;
+
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: 'groups'
+      });
+      imageUrl = result.secure_url;
+      fs.unlinkSync(req.file.path); // Eliminamos el archivo local temporal
+    }
+
+    const newGroup = new Group({
+      name,
+      recipes: recipes || [],
+      image: imageUrl
+    });
+
     await newGroup.save();
     res.status(201).json(newGroup);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: error.message });
   }
 });
