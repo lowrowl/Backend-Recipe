@@ -48,6 +48,12 @@ router.put('/:id/addRecipe', async (req, res) => {
     if (!group) {
       return res.status(404).json({ error: 'Group not found' });
     }
+
+    // Verifica si ya existe la receta en el grupo
+    if (group.recipes.includes(recipeId)) {
+      return res.status(400).json({ error: 'La receta ya está en el grupo' });
+    }
+
     group.recipes.push(recipeId);
     await group.save();
     res.json(group);
@@ -68,5 +74,26 @@ router.delete('/:id', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+// Obtener recetas de un grupo específico
+
+router.get('/:id/recipes', async (req, res) => {
+  try {
+    const groupId = req.params.id;
+
+    const group = await Group.findById(groupId);
+    if (!group) {
+      return res.status(404).json({ error: 'Group not found' });
+    }
+
+    // Buscamos las recetas donde esté este grupo asociado
+    const recipes = await Recipe.find({ groups: groupId });
+
+    res.json(recipes);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 
 module.exports = router;
