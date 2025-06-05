@@ -52,6 +52,7 @@ router.post('/', upload.single('image'), async (req, res) => {
       ingredients,
       steps,
       image: imageUrl,
+      createdBy: userId
     });
 
     await newRecipe.save();

@@ -19,19 +19,24 @@ const recipeSchema = new mongoose.Schema({
   },
   image: {
     type: String,
-    required: false, // Puedes cambiar a true si la imagen es obligatoria
+    required: false,
   },
   groups: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Group', // Hace referencia al modelo de Grupo
+    ref: 'Group',
   }],
+  createdBy: { // <--- NUEVO CAMPO
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
   createdAt: {
     type: Date,
-    default: Date.now, // Valor por defecto: fecha actual
+    default: Date.now,
   },
   updatedAt: {
     type: Date,
-    default: Date.now, // Valor por defecto: fecha actual
+    default: Date.now,
   },
 });
 
