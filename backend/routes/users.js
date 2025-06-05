@@ -24,7 +24,7 @@ router.post('/register', async (req, res) => {
     await newUser.save();
 
     // Crear un token JWT
-    const token = jwt.sign({ email: newUser.email }, process.env.JWT_SECRET || 'secreto', { expiresIn: '1h' });
+    const token = jwt.sign({ id: newUser._id, email: newUser.email }, process.env.JWT_SECRET || 'secreto', { expiresIn: '1h' });
 
     console.log('Usuario registrado exitosamente:', email);
     res.status(201).json({ token, user: newUser });
@@ -56,7 +56,7 @@ router.post('/login', async (req, res) => {
     }
 
     // Crear un token JWT
-    const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET || 'secreto', { expiresIn: '1h' });
+    const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET || 'secreto', { expiresIn: '1h' });
 
     console.log('Inicio de sesión exitoso:', email);
     res.json({ token });
