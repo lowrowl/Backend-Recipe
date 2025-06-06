@@ -66,19 +66,6 @@ app.post('/api/login', async (req, res) => {
 app.post('/api/registro', async (req, res) => {
   const { nombre, apellido, pais, esChef, email, password } = req.body;
 
-  if (!nombre || !apellido || !pais || !email || !password) {
-    return res.status(400).json({ error: "Todos los campos son obligatorios" });
-  }
-
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    return res.status(400).json({ error: "El email no es válido" });
-  }
-
-  if (password.length < 8) {
-    return res.status(400).json({ error: "La contraseña debe tener al menos 8 caracteres" });
-  }
-
   try {
     const usuarioExistente = await User.findOne({ email });
     if (usuarioExistente) {
@@ -99,9 +86,11 @@ app.post('/api/registro', async (req, res) => {
     await nuevoUsuario.save();
     res.json({ mensaje: "Usuario registrado con éxito" });
   } catch (error) {
-    res.status(500).json({ error: "Error al registrar usuario: " + error.message });
+    console.error(error);
+    res.status(500).json({ error: error.message });
   }
 });
+
 
 // Iniciar el servidor
 app.listen(PORT, () => {
